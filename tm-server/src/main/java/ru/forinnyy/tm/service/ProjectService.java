@@ -2,52 +2,55 @@ package ru.forinnyy.tm.service;
 
 import lombok.NonNull;
 import lombok.SneakyThrows;
+import org.apache.ibatis.session.SqlSession;
 import ru.forinnyy.tm.api.repository.IProjectRepository;
 import ru.forinnyy.tm.api.service.IConnectionService;
 import ru.forinnyy.tm.api.service.IProjectService;
 import ru.forinnyy.tm.enumerated.Status;
 import ru.forinnyy.tm.exception.entity.ProjectNotFoundException;
-import ru.forinnyy.tm.exception.field.*;
+import ru.forinnyy.tm.exception.field.DescriptionEmptyException;
+import ru.forinnyy.tm.exception.field.IndexIncorrectException;
+import ru.forinnyy.tm.exception.field.NameEmptyException;
+import ru.forinnyy.tm.exception.field.ProjectIdEmptyException;
+import ru.forinnyy.tm.exception.field.UserIdEmptyException;
 import ru.forinnyy.tm.exception.user.PermissionException;
 import ru.forinnyy.tm.model.Project;
-import ru.forinnyy.tm.repository.ProjectRepository;
 
-import java.sql.Connection;
-
-public final class ProjectService extends AbstractUserOwnedService<Project, IProjectRepository>
-        implements IProjectService {
-
-    public ProjectService(@NonNull final IConnectionService connectionService) {
-        super(connectionService);
-    }
+public final class ProjectService implements IProjectService {
 
     @NonNull
-    public IProjectRepository getRepository(@NonNull final Connection connection) {
-        return new ProjectRepository(connection);
+    private final IConnectionService connectionService;
+
+    public ProjectService(@NonNull final IConnectionService connectionService) {
+        this.connectionService = connectionService;
     }
 
     @Override
     @SneakyThrows
     public void initTable() {
-        try (@NonNull final Connection connection = getConnection()) {
-            @NonNull final IProjectRepository repository = getRepository(connection);
+        try (@NonNull final SqlSession session = connectionService.getSqlSession()) {
+            @NonNull final IProjectRepository repository = session.getMapper(IProjectRepository.class);
             repository.initTable();
-            connection.commit();
+            session.commit();
         }
     }
-
 
     @NonNull
     @Override
     @SneakyThrows
-    public Project create(final String userId, final String name) {
-        if (userId == null || userId.isEmpty()) throw new UserIdEmptyException();
-        if (name == null || name.isEmpty()) throw new NameEmptyException();
+    public Project create(@NonNull final String userId, @NonNull final String name) {
+        if (userId.isEmpty()) throw new UserIdEmptyException();
+        if (name.isEmpty()) throw new NameEmptyException();
 
-        try (@NonNull final Connection connection = getConnection()) {
-            @NonNull final IProjectRepository repository = getRepository(connection);
-            @NonNull final Project project = repository.create(userId, name);
-            connection.commit();
+        try (@NonNull final SqlSession session = connectionService.getSqlSession()) {
+            @NonNull final IProjectRepository repository = session.getMapper(IProjectRepository.class);
+
+            @NonNull final Project project = new Project();
+            project.setUserId(userId);
+            project.setName(name);
+
+            repository.add(project);
+            session.commit();
             return project;
         }
     }
@@ -55,15 +58,25 @@ public final class ProjectService extends AbstractUserOwnedService<Project, IPro
     @NonNull
     @Override
     @SneakyThrows
-    public Project create(final String userId, final String name, final String description) {
-        if (userId == null || userId.isEmpty()) throw new UserIdEmptyException();
-        if (name == null || name.isEmpty()) throw new NameEmptyException();
-        if (description == null || description.isEmpty()) throw new DescriptionEmptyException();
+    public Project create(
+            @NonNull final String userId,
+            @NonNull final String name,
+            @NonNull final String description
+    ) {
+        if (userId.isEmpty()) throw new UserIdEmptyException();
+        if (name.isEmpty()) throw new NameEmptyException();
+        if (description.isEmpty()) throw new DescriptionEmptyException();
 
-        try (@NonNull final Connection connection = getConnection()) {
-            @NonNull final IProjectRepository repository = getRepository(connection);
-            @NonNull final Project project = repository.create(userId, name, description);
-            connection.commit();
+        try (@NonNull final SqlSession session = connectionService.getSqlSession()) {
+            @NonNull final IProjectRepository repository = session.getMapper(IProjectRepository.class);
+
+            @NonNull final Project project = new Project();
+            project.setUserId(userId);
+            project.setName(name);
+            project.setDescription(description);
+
+            repository.add(project);
+            session.commit();
             return project;
         }
     }
@@ -71,14 +84,19 @@ public final class ProjectService extends AbstractUserOwnedService<Project, IPro
     @NonNull
     @Override
     @SneakyThrows
-    public Project updateById(final String userId, final String id, final String name, final String description) {
-        if (userId == null || userId.isEmpty()) throw new UserIdEmptyException();
-        if (id == null || id.isEmpty()) throw new ProjectIdEmptyException();
-        if (name == null || name.isEmpty()) throw new NameEmptyException();
-        if (description == null || description.isEmpty()) throw new DescriptionEmptyException();
+    public Project updateById(
+            @NonNull final String userId,
+            @NonNull final String id,
+            @NonNull final String name,
+            @NonNull final String description
+    ) {
+        if (userId.isEmpty()) throw new UserIdEmptyException();
+        if (id.isEmpty()) throw new ProjectIdEmptyException();
+        if (name.isEmpty()) throw new NameEmptyException();
+        if (description.isEmpty()) throw new DescriptionEmptyException();
 
-        try (@NonNull final Connection connection = getConnection()) {
-            @NonNull final IProjectRepository repository = getRepository(connection);
+        try (@NonNull final SqlSession session = connectionService.getSqlSession()) {
+            @NonNull final IProjectRepository repository = session.getMapper(IProjectRepository.class);
 
             final Project project = repository.findOneById(userId, id);
             if (project == null) throw new ProjectNotFoundException();
@@ -86,9 +104,9 @@ public final class ProjectService extends AbstractUserOwnedService<Project, IPro
 
             project.setName(name);
             project.setDescription(description);
-            repository.update(project);
 
-            connection.commit();
+            repository.update(project);
+            session.commit();
             return project;
         }
     }
@@ -96,17 +114,21 @@ public final class ProjectService extends AbstractUserOwnedService<Project, IPro
     @NonNull
     @Override
     @SneakyThrows
-    public Project updateByIndex(final String userId, final Integer index, final String name, final String description) {
-        if (userId == null || userId.isEmpty()) throw new UserIdEmptyException();
-        if (name == null || name.isEmpty()) throw new NameEmptyException();
-        if (description == null || description.isEmpty()) throw new DescriptionEmptyException();
+    public Project updateByIndex(
+            @NonNull final String userId,
+            @NonNull final Integer index,
+            @NonNull final String name,
+            @NonNull final String description
+    ) {
+        if (userId.isEmpty()) throw new UserIdEmptyException();
+        if (name.isEmpty()) throw new NameEmptyException();
+        if (description.isEmpty()) throw new DescriptionEmptyException();
 
-        try (@NonNull final Connection connection = getConnection()) {
-            @NonNull final IProjectRepository repository = getRepository(connection);
+        try (@NonNull final SqlSession session = connectionService.getSqlSession()) {
+            @NonNull final IProjectRepository repository = session.getMapper(IProjectRepository.class);
 
-            if (index == null || index < 0 || index >= repository.getSize(userId)) {
-                throw new IndexIncorrectException();
-            }
+            final int size = repository.getSize(userId);
+            if (index == null || index < 0 || index >= size) throw new IndexIncorrectException();
 
             final Project project = repository.findOneByIndex(userId, index);
             if (project == null) throw new ProjectNotFoundException();
@@ -114,9 +136,9 @@ public final class ProjectService extends AbstractUserOwnedService<Project, IPro
 
             project.setName(name);
             project.setDescription(description);
-            repository.update(project);
 
-            connection.commit();
+            repository.update(project);
+            session.commit();
             return project;
         }
     }
@@ -124,12 +146,16 @@ public final class ProjectService extends AbstractUserOwnedService<Project, IPro
     @NonNull
     @Override
     @SneakyThrows
-    public Project changeProjectStatusById(final String userId, final String id, @NonNull final Status status) {
-        if (userId == null || userId.isEmpty()) throw new UserIdEmptyException();
-        if (id == null || id.isEmpty()) throw new ProjectIdEmptyException();
+    public Project changeProjectStatusById(
+            @NonNull final String userId,
+            @NonNull final String id,
+            @NonNull final Status status
+    ) {
+        if (userId.isEmpty()) throw new UserIdEmptyException();
+        if (id.isEmpty()) throw new ProjectIdEmptyException();
 
-        try (@NonNull final Connection connection = getConnection()) {
-            @NonNull final IProjectRepository repository = getRepository(connection);
+        try (@NonNull final SqlSession session = connectionService.getSqlSession()) {
+            @NonNull final IProjectRepository repository = session.getMapper(IProjectRepository.class);
 
             final Project project = repository.findOneById(userId, id);
             if (project == null) throw new ProjectNotFoundException();
@@ -138,7 +164,7 @@ public final class ProjectService extends AbstractUserOwnedService<Project, IPro
             project.setStatus(status);
             repository.update(project);
 
-            connection.commit();
+            session.commit();
             return project;
         }
     }
@@ -146,15 +172,18 @@ public final class ProjectService extends AbstractUserOwnedService<Project, IPro
     @NonNull
     @Override
     @SneakyThrows
-    public Project changeProjectStatusByIndex(final String userId, final Integer index, @NonNull final Status status) {
-        if (userId == null || userId.isEmpty()) throw new UserIdEmptyException();
+    public Project changeProjectStatusByIndex(
+            @NonNull final String userId,
+            @NonNull final Integer index,
+            @NonNull final Status status
+    ) {
+        if (userId.isEmpty()) throw new UserIdEmptyException();
 
-        try (@NonNull final Connection connection = getConnection()) {
-            @NonNull final IProjectRepository repository = getRepository(connection);
+        try (@NonNull final SqlSession session = connectionService.getSqlSession()) {
+            @NonNull final IProjectRepository repository = session.getMapper(IProjectRepository.class);
 
-            if (index == null || index < 0 || index >= repository.getSize(userId)) {
-                throw new IndexIncorrectException();
-            }
+            final int size = repository.getSize(userId);
+            if (index == null || index < 0 || index >= size) throw new IndexIncorrectException();
 
             final Project project = repository.findOneByIndex(userId, index);
             if (project == null) throw new ProjectNotFoundException();
@@ -163,7 +192,7 @@ public final class ProjectService extends AbstractUserOwnedService<Project, IPro
             project.setStatus(status);
             repository.update(project);
 
-            connection.commit();
+            session.commit();
             return project;
         }
     }

@@ -45,6 +45,9 @@ public interface IPropertyService extends ISaltProvider {
     String getPort();
 
     @NonNull
+    String getDBDriver();
+
+    @NonNull
     String getSessionKey();
 
     @NonNull

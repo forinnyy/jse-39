@@ -97,6 +97,9 @@ public final class PropertyService implements IPropertyService {
     public static final String DATABASE_PASSWORD = "database.password";
 
     @NonNull
+    public static final String DATABASE_DRIVER = "database.driver";
+
+    @NonNull
     private final Properties properties = new Properties();
 
     @SneakyThrows
@@ -141,6 +144,12 @@ public final class PropertyService implements IPropertyService {
     @Override
     public @NonNull String getDBUrl() {
         return getStringValue(DATABASE_URL);
+    }
+
+    @Override
+    @NonNull
+    public String getDBDriver() {
+        return getStringValue(DATABASE_DRIVER);
     }
 
     @Override

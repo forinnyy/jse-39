@@ -2,52 +2,51 @@ package ru.forinnyy.tm.service;
 
 import lombok.NonNull;
 import lombok.SneakyThrows;
+import org.apache.ibatis.session.SqlSession;
 import ru.forinnyy.tm.api.repository.ITaskRepository;
 import ru.forinnyy.tm.api.service.IConnectionService;
 import ru.forinnyy.tm.api.service.ITaskService;
 import ru.forinnyy.tm.enumerated.Status;
 import ru.forinnyy.tm.exception.entity.TaskNotFoundException;
-import ru.forinnyy.tm.exception.field.*;
+import ru.forinnyy.tm.exception.field.DescriptionEmptyException;
+import ru.forinnyy.tm.exception.field.IndexIncorrectException;
+import ru.forinnyy.tm.exception.field.NameEmptyException;
+import ru.forinnyy.tm.exception.field.TaskIdEmptyException;
+import ru.forinnyy.tm.exception.field.UserIdEmptyException;
 import ru.forinnyy.tm.exception.user.PermissionException;
 import ru.forinnyy.tm.model.Task;
-import ru.forinnyy.tm.repository.TaskRepository;
 
-import java.sql.Connection;
 import java.util.Collections;
 import java.util.List;
 
-public final class TaskService extends AbstractUserOwnedService<Task, ITaskRepository>
-        implements ITaskService {
-
-    public TaskService(@NonNull IConnectionService connectionService) {
-        super(connectionService);
-    }
+public final class TaskService implements ITaskService {
 
     @NonNull
-    public ITaskRepository getRepository(@NonNull final Connection connection) {
-        return new TaskRepository(connection);
+    private final IConnectionService connectionService;
+
+    public TaskService(@NonNull final IConnectionService connectionService) {
+        this.connectionService = connectionService;
     }
 
     @Override
     @SneakyThrows
     public void initTable() {
-        try (@NonNull final Connection connection = getConnection()) {
-            @NonNull final ITaskRepository repository = getRepository(connection);
+        try (@NonNull final SqlSession session = connectionService.getSqlSession()) {
+            @NonNull final ITaskRepository repository = session.getMapper(ITaskRepository.class);
             repository.initTable();
-            connection.commit();
+            session.commit();
         }
     }
-
 
     @NonNull
     @Override
     @SneakyThrows
-    public List<Task> findAllByProjectId(final String userId, String projectId) {
-        if (userId == null || userId.isEmpty()) throw new UserIdEmptyException();
-        if (projectId == null || projectId.isEmpty()) return Collections.emptyList();
+    public List<Task> findAllByProjectId(@NonNull final String userId, @NonNull final String projectId) {
+        if (userId.isEmpty()) throw new UserIdEmptyException();
+        if (projectId.isEmpty()) return Collections.emptyList();
 
-        try (@NonNull final Connection connection = getConnection()) {
-            @NonNull final ITaskRepository repository = getRepository(connection);
+        try (@NonNull final SqlSession session = connectionService.getSqlSession()) {
+            @NonNull final ITaskRepository repository = session.getMapper(ITaskRepository.class);
             return repository.findAllByProjectId(userId, projectId);
         }
     }
@@ -55,15 +54,21 @@ public final class TaskService extends AbstractUserOwnedService<Task, ITaskRepos
     @NonNull
     @Override
     @SneakyThrows
-    public Task create(final String userId, final String name, final String description) {
-        if (userId == null || userId.isEmpty()) throw new UserIdEmptyException();
-        if (name == null || name.isEmpty()) throw new NameEmptyException();
-        if (description == null || description.isEmpty()) throw new DescriptionEmptyException();
+    public Task create(@NonNull final String userId, @NonNull final String name, @NonNull final String description) {
+        if (userId.isEmpty()) throw new UserIdEmptyException();
+        if (name.isEmpty()) throw new NameEmptyException();
+        if (description.isEmpty()) throw new DescriptionEmptyException();
 
-        try (@NonNull final Connection connection = getConnection()) {
-            @NonNull final ITaskRepository repository = getRepository(connection);
-            @NonNull final Task task = repository.create(userId, name, description);
-            connection.commit();
+        try (@NonNull final SqlSession session = connectionService.getSqlSession()) {
+            @NonNull final ITaskRepository repository = session.getMapper(ITaskRepository.class);
+
+            @NonNull final Task task = new Task();
+            task.setUserId(userId);
+            task.setName(name);
+            task.setDescription(description);
+
+            repository.add(task);
+            session.commit();
             return task;
         }
     }
@@ -71,14 +76,19 @@ public final class TaskService extends AbstractUserOwnedService<Task, ITaskRepos
     @NonNull
     @Override
     @SneakyThrows
-    public Task create(final String userId, final String name) {
-        if (userId == null || userId.isEmpty()) throw new UserIdEmptyException();
-        if (name == null || name.isEmpty()) throw new NameEmptyException();
+    public Task create(@NonNull final String userId, @NonNull final String name) {
+        if (userId.isEmpty()) throw new UserIdEmptyException();
+        if (name.isEmpty()) throw new NameEmptyException();
 
-        try (@NonNull final Connection connection = getConnection()) {
-            @NonNull final ITaskRepository repository = getRepository(connection);
-            @NonNull final Task task = repository.create(userId, name);
-            connection.commit();
+        try (@NonNull final SqlSession session = connectionService.getSqlSession()) {
+            @NonNull final ITaskRepository repository = session.getMapper(ITaskRepository.class);
+
+            @NonNull final Task task = new Task();
+            task.setUserId(userId);
+            task.setName(name);
+
+            repository.add(task);
+            session.commit();
             return task;
         }
     }
@@ -86,14 +96,14 @@ public final class TaskService extends AbstractUserOwnedService<Task, ITaskRepos
     @NonNull
     @Override
     @SneakyThrows
-    public Task updateById(final String userId, final String id, final String name, final String description) {
-        if (userId == null || userId.isEmpty()) throw new UserIdEmptyException();
-        if (id == null || id.isEmpty()) throw new TaskIdEmptyException();
-        if (name == null || name.isEmpty()) throw new NameEmptyException();
-        if (description == null || description.isEmpty()) throw new DescriptionEmptyException();
+    public Task updateById(@NonNull final String userId, @NonNull final String id, @NonNull final String name, @NonNull final String description) {
+        if (userId.isEmpty()) throw new UserIdEmptyException();
+        if (id.isEmpty()) throw new TaskIdEmptyException();
+        if (name.isEmpty()) throw new NameEmptyException();
+        if (description.isEmpty()) throw new DescriptionEmptyException();
 
-        try (@NonNull final Connection connection = getConnection()) {
-            @NonNull final ITaskRepository repository = getRepository(connection);
+        try (@NonNull final SqlSession session = connectionService.getSqlSession()) {
+            @NonNull final ITaskRepository repository = session.getMapper(ITaskRepository.class);
 
             final Task task = repository.findOneById(userId, id);
             if (task == null) throw new TaskNotFoundException();
@@ -101,9 +111,9 @@ public final class TaskService extends AbstractUserOwnedService<Task, ITaskRepos
 
             task.setName(name);
             task.setDescription(description);
-            repository.update(task);
 
-            connection.commit();
+            repository.update(task);
+            session.commit();
             return task;
         }
     }
@@ -111,17 +121,16 @@ public final class TaskService extends AbstractUserOwnedService<Task, ITaskRepos
     @NonNull
     @Override
     @SneakyThrows
-    public Task updateByIndex(final String userId, final Integer index, final String name, final String description) {
-        if (userId == null || userId.isEmpty()) throw new UserIdEmptyException();
-        if (name == null || name.isEmpty()) throw new NameEmptyException();
-        if (description == null || description.isEmpty()) throw new DescriptionEmptyException();
+    public Task updateByIndex(@NonNull final String userId, @NonNull final Integer index, @NonNull final String name, @NonNull final String description) {
+        if (userId.isEmpty()) throw new UserIdEmptyException();
+        if (name.isEmpty()) throw new NameEmptyException();
+        if (description.isEmpty()) throw new DescriptionEmptyException();
 
-        try (@NonNull final Connection connection = getConnection()) {
-            @NonNull final ITaskRepository repository = getRepository(connection);
+        try (@NonNull final SqlSession session = connectionService.getSqlSession()) {
+            @NonNull final ITaskRepository repository = session.getMapper(ITaskRepository.class);
 
-            if (index == null || index < 0 || index >= repository.getSize(userId)) {
-                throw new IndexIncorrectException();
-            }
+            final int size = repository.getSize(userId);
+            if (index == null || index < 0 || index >= size) throw new IndexIncorrectException();
 
             final Task task = repository.findOneByIndex(userId, index);
             if (task == null) throw new TaskNotFoundException();
@@ -129,9 +138,9 @@ public final class TaskService extends AbstractUserOwnedService<Task, ITaskRepos
 
             task.setName(name);
             task.setDescription(description);
-            repository.update(task);
 
-            connection.commit();
+            repository.update(task);
+            session.commit();
             return task;
         }
     }
@@ -139,12 +148,12 @@ public final class TaskService extends AbstractUserOwnedService<Task, ITaskRepos
     @NonNull
     @Override
     @SneakyThrows
-    public Task changeTaskStatusById(final String userId, final String id, @NonNull final Status status) {
-        if (userId == null || userId.isEmpty()) throw new UserIdEmptyException();
-        if (id == null || id.isEmpty()) throw new TaskIdEmptyException();
+    public Task changeTaskStatusById(@NonNull final String userId, @NonNull final String id, @NonNull final Status status) {
+        if (userId.isEmpty()) throw new UserIdEmptyException();
+        if (id.isEmpty()) throw new TaskIdEmptyException();
 
-        try (@NonNull final Connection connection = getConnection()) {
-            @NonNull final ITaskRepository repository = getRepository(connection);
+        try (@NonNull final SqlSession session = connectionService.getSqlSession()) {
+            @NonNull final ITaskRepository repository = session.getMapper(ITaskRepository.class);
 
             final Task task = repository.findOneById(userId, id);
             if (task == null) throw new TaskNotFoundException();
@@ -153,7 +162,7 @@ public final class TaskService extends AbstractUserOwnedService<Task, ITaskRepos
             task.setStatus(status);
             repository.update(task);
 
-            connection.commit();
+            session.commit();
             return task;
         }
     }
@@ -161,15 +170,14 @@ public final class TaskService extends AbstractUserOwnedService<Task, ITaskRepos
     @NonNull
     @Override
     @SneakyThrows
-    public Task changeTaskStatusByIndex(final String userId, final Integer index, @NonNull final Status status) {
-        if (userId == null || userId.isEmpty()) throw new UserIdEmptyException();
+    public Task changeTaskStatusByIndex(@NonNull final String userId, @NonNull final Integer index, @NonNull final Status status) {
+        if (userId.isEmpty()) throw new UserIdEmptyException();
 
-        try (@NonNull final Connection connection = getConnection()) {
-            @NonNull final ITaskRepository repository = getRepository(connection);
+        try (@NonNull final SqlSession session = connectionService.getSqlSession()) {
+            @NonNull final ITaskRepository repository = session.getMapper(ITaskRepository.class);
 
-            if (index == null || index < 0 || index >= repository.getSize(userId)) {
-                throw new IndexIncorrectException();
-            }
+            final int size = repository.getSize(userId);
+            if (index == null || index < 0 || index >= size) throw new IndexIncorrectException();
 
             final Task task = repository.findOneByIndex(userId, index);
             if (task == null) throw new TaskNotFoundException();
@@ -178,7 +186,7 @@ public final class TaskService extends AbstractUserOwnedService<Task, ITaskRepos
             task.setStatus(status);
             repository.update(task);
 
-            connection.commit();
+            session.commit();
             return task;
         }
     }

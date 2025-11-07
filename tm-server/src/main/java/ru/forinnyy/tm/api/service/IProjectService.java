@@ -2,6 +2,7 @@ package ru.forinnyy.tm.api.service;
 
 import lombok.NonNull;
 import lombok.SneakyThrows;
+import ru.forinnyy.tm.api.repository.IProjectRepository;
 import ru.forinnyy.tm.enumerated.Status;
 import ru.forinnyy.tm.exception.entity.AbstractEntityException;
 import ru.forinnyy.tm.exception.field.AbstractFieldException;
@@ -9,7 +10,7 @@ import ru.forinnyy.tm.exception.user.AbstractUserException;
 import ru.forinnyy.tm.model.Project;
 
 
-public interface IProjectService extends IUserOwnedService<Project> {
+public interface IProjectService {
 
     @SneakyThrows
     void initTable();
