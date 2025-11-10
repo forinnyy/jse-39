@@ -10,14 +10,14 @@ import java.util.List;
 
 public interface IProjectRepository {
 
-    String T_PROJECT     = DBConstraints.TABLE_PROJECT;
-    String T_USER        = DBConstraints.TABLE_USER;
-    String C_ID          = DBConstraints.COLUMN_ID;
-    String C_NAME        = DBConstraints.COLUMN_NAME;
-    String C_CREATED     = DBConstraints.COLUMN_CREATED;
-    String C_DESCRIPTION = DBConstraints.COLUMN_DESCRIPTION;
-    String C_USER_ID     = DBConstraints.COLUMN_USER_ID;
-    String C_STATUS      = DBConstraints.COLUMN_STATUS;
+    @NonNull String T_PROJECT     = DBConstraints.TABLE_PROJECT;
+    @NonNull String T_USER        = DBConstraints.TABLE_USER;
+    @NonNull String C_ID          = DBConstraints.COLUMN_ID;
+    @NonNull String C_NAME        = DBConstraints.COLUMN_NAME;
+    @NonNull String C_CREATED     = DBConstraints.COLUMN_CREATED;
+    @NonNull String C_DESCRIPTION = DBConstraints.COLUMN_DESCRIPTION;
+    @NonNull String C_USER_ID     = DBConstraints.COLUMN_USER_ID;
+    @NonNull String C_STATUS      = DBConstraints.COLUMN_STATUS;
 
     @Update(
             "CREATE TABLE IF NOT EXISTS " + T_PROJECT + " (" +

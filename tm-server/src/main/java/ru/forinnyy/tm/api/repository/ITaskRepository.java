@@ -10,14 +10,14 @@ import java.util.List;
 
 public interface ITaskRepository {
 
-    String T             = DBConstraints.TABLE_TASK;
-    String C_ID          = DBConstraints.COLUMN_ID;
-    String C_NAME        = DBConstraints.COLUMN_NAME;
-    String C_CREATED     = DBConstraints.COLUMN_CREATED;
-    String C_DESCRIPTION = DBConstraints.COLUMN_DESCRIPTION;
-    String C_USER_ID     = DBConstraints.COLUMN_USER_ID;
-    String C_STATUS      = DBConstraints.COLUMN_STATUS;
-    String C_PROJECT_ID  = DBConstraints.COLUMN_PROJECT_ID;
+    @NonNull String T             = DBConstraints.TABLE_TASK;
+    @NonNull String C_ID          = DBConstraints.COLUMN_ID;
+    @NonNull String C_NAME        = DBConstraints.COLUMN_NAME;
+    @NonNull String C_CREATED     = DBConstraints.COLUMN_CREATED;
+    @NonNull String C_DESCRIPTION = DBConstraints.COLUMN_DESCRIPTION;
+    @NonNull String C_USER_ID     = DBConstraints.COLUMN_USER_ID;
+    @NonNull String C_STATUS      = DBConstraints.COLUMN_STATUS;
+    @NonNull String C_PROJECT_ID  = DBConstraints.COLUMN_PROJECT_ID;
 
     @Update(
             "CREATE TABLE IF NOT EXISTS " + T + " (" +

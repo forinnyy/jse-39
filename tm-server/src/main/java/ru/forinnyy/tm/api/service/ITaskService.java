@@ -14,6 +14,7 @@ public interface ITaskService {
     @NonNull List<Task> findAllByProjectId(@NonNull String userId, @NonNull String projectId);
 
     @NonNull Task create(@NonNull String userId, @NonNull String name);
+
     @NonNull Task create(@NonNull String userId, @NonNull String name, @NonNull String description);
 
     @NonNull Task updateById(@NonNull String userId, @NonNull String id,
@@ -31,10 +32,13 @@ public interface ITaskService {
     int getSize(@NonNull String userId);
 
     @NonNull List<Task> findAll(@NonNull String userId);
+
     @NonNull List<Task> findAll(@NonNull String userId, Sort sort);
 
     @NonNull List<Task> findAllOrderById(@NonNull String userId);
+
     @NonNull List<Task> findAllOrderByName(@NonNull String userId);
+
     @NonNull List<Task> findAllOrderByCreated(@NonNull String userId);
 
     void clear(@NonNull String userId);

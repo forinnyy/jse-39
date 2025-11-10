@@ -12,6 +12,7 @@ public interface IProjectService {
     void initTable();
 
     @NonNull Project create(@NonNull String userId, @NonNull String name);
+
     @NonNull Project create(@NonNull String userId, @NonNull String name, @NonNull String description);
 
     @NonNull Project updateById(@NonNull String userId, @NonNull String id,
@@ -21,6 +22,7 @@ public interface IProjectService {
                                    @NonNull String name, @NonNull String description);
 
     @NonNull Project changeProjectStatusById(@NonNull String userId, @NonNull String id, @NonNull Status status);
+
     @NonNull Project changeProjectStatusByIndex(@NonNull String userId, @NonNull Integer index, @NonNull Status status);
 
     @NonNull Project findOneById(@NonNull String userId, @NonNull String id);
@@ -29,11 +31,13 @@ public interface IProjectService {
     int getSize(@NonNull String userId);
 
     @NonNull List<Project> findAll(@NonNull String userId);
+
     @NonNull List<Project> findAll(@NonNull String userId, Sort sort);
 
-    // Явные методы сортировки (если нужно вызывать напрямую)
     @NonNull List<Project> findAllOrderById(@NonNull String userId);
+
     @NonNull List<Project> findAllOrderByName(@NonNull String userId);
+
     @NonNull List<Project> findAllOrderByCreated(@NonNull String userId);
 
 }

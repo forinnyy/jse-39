@@ -10,12 +10,12 @@ import java.util.List;
 
 public interface ISessionRepository {
 
-    String T         = DBConstraints.TABLE_SESSION;
-    String T_USER    = DBConstraints.TABLE_USER;
-    String C_ID      = DBConstraints.COLUMN_ID;
-    String C_USER_ID = DBConstraints.COLUMN_USER_ID;
-    String C_DATE    = DBConstraints.COLUMN_DATE;
-    String C_ROLE    = DBConstraints.COLUMN_ROLE;
+    @NonNull String T         = DBConstraints.TABLE_SESSION;
+    @NonNull String T_USER    = DBConstraints.TABLE_USER;
+    @NonNull String C_ID      = DBConstraints.COLUMN_ID;
+    @NonNull String C_USER_ID = DBConstraints.COLUMN_USER_ID;
+    @NonNull String C_DATE    = DBConstraints.COLUMN_DATE;
+    @NonNull String C_ROLE    = DBConstraints.COLUMN_ROLE;
 
     @Update(
             "CREATE TABLE IF NOT EXISTS " + T + " (" +

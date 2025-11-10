@@ -10,17 +10,17 @@ import java.util.List;
 
 public interface IUserRepository {
 
-    String T_USER        = DBConstraints.TABLE_USER;
-    String C_ID          = DBConstraints.COLUMN_ID;
-    String C_LOGIN       = DBConstraints.COLUMN_LOGIN;
-    String C_PASSWORD    = DBConstraints.COLUMN_PASSWORD;
-    String C_EMAIL       = DBConstraints.COLUMN_EMAIL;
-    String C_LOCKED      = DBConstraints.COLUMN_LOCKED;
-    String C_FIRST_NAME  = DBConstraints.COLUMN_FIRST_NAME;
-    String C_LAST_NAME   = DBConstraints.COLUMN_LAST_NAME;
-    String C_MIDDLE_NAME = DBConstraints.COLUMN_MIDDLE_NAME;
-    String C_ROLE        = DBConstraints.COLUMN_ROLE;
-    String C_CREATED     = DBConstraints.COLUMN_CREATED;
+    @NonNull String T_USER        = DBConstraints.TABLE_USER;
+    @NonNull String C_ID          = DBConstraints.COLUMN_ID;
+    @NonNull String C_LOGIN       = DBConstraints.COLUMN_LOGIN;
+    @NonNull String C_PASSWORD    = DBConstraints.COLUMN_PASSWORD;
+    @NonNull String C_EMAIL       = DBConstraints.COLUMN_EMAIL;
+    @NonNull String C_LOCKED      = DBConstraints.COLUMN_LOCKED;
+    @NonNull String C_FIRST_NAME  = DBConstraints.COLUMN_FIRST_NAME;
+    @NonNull String C_LAST_NAME   = DBConstraints.COLUMN_LAST_NAME;
+    @NonNull String C_MIDDLE_NAME = DBConstraints.COLUMN_MIDDLE_NAME;
+    @NonNull String C_ROLE        = DBConstraints.COLUMN_ROLE;
+    @NonNull String C_CREATED     = DBConstraints.COLUMN_CREATED;
 
     @Update(
             "CREATE TABLE IF NOT EXISTS " + T_USER + " (" +
@@ -38,16 +38,15 @@ public interface IUserRepository {
     void initTable();
 
     @Results(id = "UserMap", value = {
-            @Result(column = C_ID,         property = "id"),
-            @Result(column = C_LOGIN,      property = "login"),
-            @Result(column = C_PASSWORD,   property = "passwordHash"),
-            @Result(column = C_EMAIL,      property = "email"),
-            @Result(column = C_LOCKED,     property = "locked"),
-            @Result(column = C_FIRST_NAME, property = "firstName"),
-            @Result(column = C_LAST_NAME,  property = "lastName"),
-            @Result(column = C_MIDDLE_NAME,property = "middleName"),
-            @Result(column = C_ROLE,       property = "role", javaType = Role.class),
-            @Result(column = C_CREATED,    property = "created")
+            @Result(column = C_ID,          property = "id"),
+            @Result(column = C_LOGIN,       property = "login"),
+            @Result(column = C_PASSWORD,    property = "passwordHash"),
+            @Result(column = C_EMAIL,       property = "email"),
+            @Result(column = C_LOCKED,      property = "locked"),
+            @Result(column = C_FIRST_NAME,  property = "firstName"),
+            @Result(column = C_LAST_NAME,   property = "lastName"),
+            @Result(column = C_MIDDLE_NAME, property = "middleName"),
+            @Result(column = C_ROLE,        property = "role", javaType = Role.class)
     })
     @Select("SELECT * FROM " + T_USER)
     List<User> findAll();
