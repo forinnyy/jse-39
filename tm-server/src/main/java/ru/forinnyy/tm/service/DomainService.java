@@ -7,9 +7,17 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import lombok.Cleanup;
 import lombok.NonNull;
 import lombok.SneakyThrows;
+import org.apache.ibatis.session.SqlSession;
+import ru.forinnyy.tm.api.repository.IProjectRepository;
+import ru.forinnyy.tm.api.repository.ITaskRepository;
+import ru.forinnyy.tm.api.repository.IUserRepository;
+import ru.forinnyy.tm.api.service.IConnectionService;
 import ru.forinnyy.tm.api.service.IDomainService;
 import ru.forinnyy.tm.api.service.IServiceLocator;
 import ru.forinnyy.tm.dto.Domain;
+import ru.forinnyy.tm.model.Project;
+import ru.forinnyy.tm.model.Task;
+import ru.forinnyy.tm.model.User;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
@@ -18,6 +26,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
@@ -57,24 +66,71 @@ public class DomainService implements IDomainService {
     @NonNull
     private final IServiceLocator serviceLocator;
 
-    public DomainService(@NonNull final IServiceLocator serviceLocator) {
+    @NonNull
+    private final IConnectionService connectionService;
+
+    public DomainService(@NonNull final IServiceLocator serviceLocator,
+                         @NonNull final IConnectionService connectionService) {
         this.serviceLocator = serviceLocator;
+        this.connectionService = connectionService;
     }
 
     @NonNull
+    @SneakyThrows
     public Domain getDomain() {
-        @NonNull final Domain domain = new Domain();
-        domain.setProjects(serviceLocator.getProjectService().findAll());
-        domain.setTasks(serviceLocator.getTaskService().findAll());
-        domain.setUsers(serviceLocator.getUserService().findAll());
-        return domain;
+        try (@NonNull final SqlSession session = connectionService.getSqlSession()) {
+            @NonNull final IUserRepository userRepository = session.getMapper(IUserRepository.class);
+            @NonNull final IProjectRepository projectRepository = session.getMapper(IProjectRepository.class);
+            @NonNull final ITaskRepository taskRepository = session.getMapper(ITaskRepository.class);
+
+            @NonNull final List<User> users = userRepository.findAll();
+
+            @NonNull final List<Project> projects = new ArrayList<>();
+            @NonNull final List<Task> tasks = new ArrayList<>();
+
+            for (@NonNull final User user : users) {
+                projects.addAll(projectRepository.findAll(user.getId()));
+                tasks.addAll(taskRepository.findAll(user.getId()));
+            }
+
+            @NonNull final Domain domain = new Domain();
+            domain.setUsers(users);
+            domain.setProjects(projects);
+            domain.setTasks(tasks);
+            return domain;
+        }
     }
 
+    @SneakyThrows
     public void setDomain(final Domain domain) {
         if (domain == null) return;
-        serviceLocator.getProjectService().set(domain.getProjects());
-        serviceLocator.getTaskService().set(domain.getTasks());
-        serviceLocator.getUserService().set(domain.getUsers());
+
+        @NonNull final List<User> users = domain.getUsers();
+        @NonNull final List<Project> projects = domain.getProjects();
+        @NonNull final List<Task> tasks = domain.getTasks();
+
+        try (@NonNull final SqlSession session = connectionService.getSqlSession()) {
+            @NonNull final IUserRepository userRepository = session.getMapper(IUserRepository.class);
+            @NonNull final IProjectRepository projectRepository = session.getMapper(IProjectRepository.class);
+            @NonNull final ITaskRepository taskRepository = session.getMapper(ITaskRepository.class);
+
+            @NonNull final List<User> usersFromRepository = userRepository.findAll();
+            for (@NonNull final User user : usersFromRepository) {
+                userRepository.removeById(user.getId());
+            }
+
+            for (@NonNull final User user : users) {
+                userRepository.add(user);
+            }
+            for (@NonNull final Project project : projects) {
+                projectRepository.add(project);
+            }
+            for (@NonNull final Task task : tasks) {
+                taskRepository.add(task);
+            }
+
+            session.commit();
+        }
     }
 
     public void deleteFilesAfterTests() {

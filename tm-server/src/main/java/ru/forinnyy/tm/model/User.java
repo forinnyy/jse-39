@@ -29,11 +29,6 @@ public final class User extends AbstractModel {
     @NonNull
     private Role role = Role.USUAL;
 
-    @NonNull
-    private Boolean locked = false;
-
-    public Boolean isLocked() {
-        return locked;
-    }
+    private boolean locked = false;
 
 }

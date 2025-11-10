@@ -1,58 +1,66 @@
 package ru.forinnyy.tm.api.service;
 
 import lombok.NonNull;
-import lombok.SneakyThrows;
 import ru.forinnyy.tm.enumerated.Role;
-import ru.forinnyy.tm.exception.entity.AbstractEntityException;
-import ru.forinnyy.tm.exception.field.AbstractFieldException;
-import ru.forinnyy.tm.exception.user.AbstractUserException;
+import ru.forinnyy.tm.enumerated.Sort;
 import ru.forinnyy.tm.model.User;
 
 import java.util.List;
 
-public interface IUserService extends IService<User> {
+public interface IUserService {
 
-    @SneakyThrows
     void initTable();
 
     @NonNull
-    User create(String login, String password) throws AbstractUserException, AbstractFieldException, AbstractEntityException;
+    User create(@NonNull String login, @NonNull String password);
 
     @NonNull
-    User create(String login, String password, String email) throws AbstractUserException, AbstractFieldException, AbstractEntityException;
+    User create(@NonNull String login, @NonNull String password, @NonNull String email);
 
     @NonNull
-    User create(String login, String password, Role role) throws AbstractUserException, AbstractFieldException, AbstractEntityException;
+    User create(@NonNull String login, @NonNull String password, @NonNull Role role);
 
     @NonNull
-    User findByLogin(String login) throws AbstractFieldException, AbstractEntityException;
+    User findByLogin(@NonNull String login);
 
     @NonNull
-    User findByEmail(String email) throws AbstractUserException, AbstractEntityException;
+    User findByEmail(@NonNull String email);
 
     @NonNull
-    User removeByLogin(String login) throws AbstractEntityException, AbstractFieldException;
+    User findOneById(@NonNull String id);
 
     @NonNull
-    User removeByEmail(String email) throws AbstractEntityException, AbstractUserException, AbstractFieldException;
+    User removeByLogin(@NonNull String login);
 
     @NonNull
-    User setPassword(@NonNull String id, @NonNull String password) throws AbstractFieldException, AbstractEntityException;
+    User removeByEmail(@NonNull String email);
 
     @NonNull
-    User updateUser(String id, String firstName, String lastName, String middleName) throws AbstractFieldException, AbstractEntityException;
+    Boolean isLoginExist(@NonNull String login);
 
     @NonNull
-    Boolean isLoginExist(String login);
+    Boolean isEmailExist(@NonNull String email);
 
     @NonNull
-    Boolean isEmailExist(String email);
+    User setPassword(@NonNull String id, @NonNull String password);
 
-    void lockUserByLogin(String login) throws AbstractFieldException, AbstractEntityException;
+    @NonNull
+    User updateUser(@NonNull String id,
+                    @NonNull String firstName,
+                    @NonNull String lastName,
+                    @NonNull String middleName);
 
-    void unlockUserByLogin(String login) throws AbstractFieldException, AbstractEntityException;
+    void lockUserByLogin(@NonNull String login);
+
+    void unlockUserByLogin(@NonNull String login);
 
     @NonNull
     List<String> listProfiles();
+
+    @NonNull
+    List<User> findAll();
+
+    @NonNull
+    List<User> findAll(Sort sort);
 
 }

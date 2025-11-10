@@ -12,10 +12,7 @@ import ru.forinnyy.tm.api.service.IUserService;
 import ru.forinnyy.tm.enumerated.Role;
 import ru.forinnyy.tm.enumerated.Sort;
 import ru.forinnyy.tm.exception.entity.UserNotFoundException;
-import ru.forinnyy.tm.exception.field.EmailEmptyException;
-import ru.forinnyy.tm.exception.field.IdEmptyException;
-import ru.forinnyy.tm.exception.field.LoginEmptyException;
-import ru.forinnyy.tm.exception.field.PasswordEmptyException;
+import ru.forinnyy.tm.exception.field.*;
 import ru.forinnyy.tm.exception.user.ExistsEmailException;
 import ru.forinnyy.tm.exception.user.ExistsLoginException;
 import ru.forinnyy.tm.model.User;
@@ -102,6 +99,7 @@ public final class UserService implements IUserService {
     public User create(@NonNull final String login, @NonNull final String password, @NonNull final Role role) {
         if (login.isEmpty()) throw new LoginEmptyException();
         if (password.isEmpty()) throw new PasswordEmptyException();
+        if (role == null) throw new RoleEmptyException();
         if (isLoginExist(login)) throw new ExistsLoginException();
 
         @NonNull final User user = new User();
@@ -143,6 +141,19 @@ public final class UserService implements IUserService {
     @NonNull
     @Override
     @SneakyThrows
+    public User findOneById(@NonNull final String id) {
+        if (id.isEmpty()) throw new IdEmptyException();
+        try (@NonNull final SqlSession session = connectionService.getSqlSession()) {
+            @NonNull final IUserRepository repository = session.getMapper(IUserRepository.class);
+            final User user = repository.findOneById(id);
+            if (user == null) throw new UserNotFoundException();
+            return user;
+        }
+    }
+
+    @NonNull
+    @Override
+    @SneakyThrows
     public User removeByLogin(@NonNull final String login) {
         if (login.isEmpty()) throw new LoginEmptyException();
         final User user = findByLogin(login);
@@ -162,9 +173,16 @@ public final class UserService implements IUserService {
     @SneakyThrows
     public User remove(@NonNull final User model) {
         @NonNull final String userId = model.getId();
+
         try (@NonNull final SqlSession session = connectionService.getSqlSession()) {
             @NonNull final IUserRepository userRepository = session.getMapper(IUserRepository.class);
+            @NonNull final ITaskRepository taskRepository = session.getMapper(ITaskRepository.class);
+            @NonNull final IProjectRepository projectRepository = session.getMapper(IProjectRepository.class);
+
             userRepository.removeById(userId);
+            taskRepository.clear(userId);
+            projectRepository.clear(userId);
+
             session.commit();
             return model;
         }
@@ -277,6 +295,7 @@ public final class UserService implements IUserService {
     }
 
     @NonNull
+    @Override
     @SneakyThrows
     public List<User> findAll() {
         try (@NonNull final SqlSession session = connectionService.getSqlSession()) {
@@ -288,13 +307,14 @@ public final class UserService implements IUserService {
     @NonNull
     @Override
     @SneakyThrows
+    @SuppressWarnings("unchecked")
     public List<User> findAll(final Sort sort) {
         try (@NonNull final SqlSession session = connectionService.getSqlSession()) {
             @NonNull final IUserRepository repository = session.getMapper(IUserRepository.class);
             @NonNull final List<User> users = repository.findAll();
             if (sort == null) return users;
             return users.stream()
-                    .sorted((Comparator<? super User>) sort.getComparator())
+                    .sorted((Comparator<User>) sort.getComparator())
                     .collect(Collectors.toList());
         }
     }

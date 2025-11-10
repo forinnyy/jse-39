@@ -3,8 +3,6 @@ package ru.forinnyy.tm.service;
 
 import lombok.NonNull;
 import lombok.SneakyThrows;
-import org.apache.commons.dbcp2.BasicDataSource;
-import org.apache.commons.dbcp2.PoolingDataSource;
 import org.apache.ibatis.datasource.pooled.PooledDataSource;
 import org.apache.ibatis.mapping.Environment;
 import org.apache.ibatis.session.Configuration;
@@ -21,8 +19,6 @@ import ru.forinnyy.tm.api.service.IConnectionService;
 import ru.forinnyy.tm.api.service.IPropertyService;
 
 import javax.sql.DataSource;
-import javax.transaction.Transaction;
-import java.sql.Connection;
 
 public final class ConnectionService implements IConnectionService {
 

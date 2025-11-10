@@ -1,39 +1,46 @@
 package ru.forinnyy.tm.api.service;
 
 import lombok.NonNull;
-import lombok.SneakyThrows;
+import ru.forinnyy.tm.enumerated.Sort;
 import ru.forinnyy.tm.enumerated.Status;
-import ru.forinnyy.tm.exception.entity.AbstractEntityException;
-import ru.forinnyy.tm.exception.field.AbstractFieldException;
-import ru.forinnyy.tm.exception.user.AbstractUserException;
 import ru.forinnyy.tm.model.Task;
 
 import java.util.List;
 
 public interface ITaskService {
 
-    @NonNull
-    Task updateById(String userId, String id, String name, String description) throws AbstractFieldException, AbstractEntityException, AbstractUserException;
-
-    @NonNull
-    Task updateByIndex(String userId, Integer index, String name, String description) throws AbstractFieldException, AbstractEntityException, AbstractUserException;
-
-    @NonNull
-    Task changeTaskStatusById(String userId, String id, Status status) throws AbstractFieldException, AbstractEntityException, AbstractUserException;
-
-    @NonNull
-    Task changeTaskStatusByIndex(String userId, Integer index, Status status) throws AbstractFieldException, AbstractEntityException, AbstractUserException;
-
-    @SneakyThrows
     void initTable();
 
-    @NonNull
-    List<Task> findAllByProjectId(String userId, String projectId) throws AbstractFieldException;
+    @NonNull List<Task> findAllByProjectId(@NonNull String userId, @NonNull String projectId);
 
-    @NonNull
-    Task create(String userId, String name, String description) throws AbstractFieldException;
+    @NonNull Task create(@NonNull String userId, @NonNull String name);
+    @NonNull Task create(@NonNull String userId, @NonNull String name, @NonNull String description);
 
-    @NonNull
-    Task create(String userId, String name) throws AbstractFieldException;
+    @NonNull Task updateById(@NonNull String userId, @NonNull String id,
+                             @NonNull String name, @NonNull String description);
+
+    @NonNull Task updateByIndex(@NonNull String userId, @NonNull Integer index,
+                                @NonNull String name, @NonNull String description);
+
+    @NonNull Task changeTaskStatusById(@NonNull String userId, @NonNull String id, @NonNull Status status);
+    @NonNull Task changeTaskStatusByIndex(@NonNull String userId, @NonNull Integer index, @NonNull Status status);
+
+    @NonNull Task findOneById(@NonNull String userId, @NonNull String id);
+    @NonNull Task findOneByIndex(@NonNull String userId, @NonNull Integer index);
+
+    int getSize(@NonNull String userId);
+
+    @NonNull List<Task> findAll(@NonNull String userId);
+    @NonNull List<Task> findAll(@NonNull String userId, Sort sort);
+
+    @NonNull List<Task> findAllOrderById(@NonNull String userId);
+    @NonNull List<Task> findAllOrderByName(@NonNull String userId);
+    @NonNull List<Task> findAllOrderByCreated(@NonNull String userId);
+
+    void clear(@NonNull String userId);
+
+    void removeById(@NonNull String userId, @NonNull String id);
+
+    void removeByIndex(@NonNull String userId, @NonNull Integer index);
 
 }

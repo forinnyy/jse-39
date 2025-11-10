@@ -48,6 +48,7 @@ public final class Bootstrap implements IServiceLocator {
     @NonNull
     private final ITaskService taskService = new TaskService(connectionService);
 
+    @Getter
     @NonNull
     private final ISessionService sessionService = new SessionService(connectionService);
 
@@ -67,7 +68,7 @@ public final class Bootstrap implements IServiceLocator {
 
     @Getter
     @NonNull
-    private final IDomainService domainService = new DomainService(this);
+    private final IDomainService domainService = new DomainService(this, connectionService);
 
     @NonNull
     private final IDomainEndpoint domainEndpoint = new DomainEndpoint(this);
