@@ -230,36 +230,6 @@ public final class TaskService implements ITaskService {
         }
     }
 
-    @NonNull
-    @Override
-    @SneakyThrows
-    public List<Task> findAllOrderById(@NonNull final String userId) {
-        if (userId.isEmpty()) throw new UserIdEmptyException();
-        try (final SqlSession session = connectionService.getSqlSession()) {
-            return session.getMapper(ITaskRepository.class).findAllOrderByIdAsc(userId);
-        }
-    }
-
-    @NonNull
-    @Override
-    @SneakyThrows
-    public List<Task> findAllOrderByName(@NonNull final String userId) {
-        if (userId.isEmpty()) throw new UserIdEmptyException();
-        try (final SqlSession session = connectionService.getSqlSession()) {
-            return session.getMapper(ITaskRepository.class).findAllOrderByNameAsc(userId);
-        }
-    }
-
-    @NonNull
-    @Override
-    @SneakyThrows
-    public List<Task> findAllOrderByCreated(@NonNull final String userId) {
-        if (userId.isEmpty()) throw new UserIdEmptyException();
-        try (final SqlSession session = connectionService.getSqlSession()) {
-            return session.getMapper(ITaskRepository.class).findAllOrderByCreatedAsc(userId);
-        }
-    }
-
     @Override
     @SneakyThrows
     public void clear(@NonNull final String userId) {

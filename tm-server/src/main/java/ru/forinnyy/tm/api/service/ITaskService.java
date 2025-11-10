@@ -35,12 +35,6 @@ public interface ITaskService {
 
     @NonNull List<Task> findAll(@NonNull String userId, Sort sort);
 
-    @NonNull List<Task> findAllOrderById(@NonNull String userId);
-
-    @NonNull List<Task> findAllOrderByName(@NonNull String userId);
-
-    @NonNull List<Task> findAllOrderByCreated(@NonNull String userId);
-
     void clear(@NonNull String userId);
 
     void removeById(@NonNull String userId, @NonNull String id);

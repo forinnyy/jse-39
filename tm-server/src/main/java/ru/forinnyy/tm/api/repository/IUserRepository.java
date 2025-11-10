@@ -20,7 +20,6 @@ public interface IUserRepository {
     @NonNull String C_LAST_NAME   = DBConstraints.COLUMN_LAST_NAME;
     @NonNull String C_MIDDLE_NAME = DBConstraints.COLUMN_MIDDLE_NAME;
     @NonNull String C_ROLE        = DBConstraints.COLUMN_ROLE;
-    @NonNull String C_CREATED     = DBConstraints.COLUMN_CREATED;
 
     @Update(
             "CREATE TABLE IF NOT EXISTS " + T_USER + " (" +

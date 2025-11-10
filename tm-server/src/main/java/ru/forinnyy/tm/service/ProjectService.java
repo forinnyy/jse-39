@@ -220,31 +220,4 @@ public final class ProjectService implements IProjectService {
         }
     }
 
-    @NonNull
-    @Override
-    @SneakyThrows
-    public List<Project> findAllOrderById(@NonNull final String userId) {
-        return findAll(userId, null);
-    }
-
-    @NonNull
-    @Override
-    @SneakyThrows
-    public List<Project> findAllOrderByName(@NonNull final String userId) {
-        if (userId.isEmpty()) throw new UserIdEmptyException();
-        try (final SqlSession session = connectionService.getSqlSession()) {
-            return session.getMapper(IProjectRepository.class).findAllOrderByNameAsc(userId);
-        }
-    }
-
-    @NonNull
-    @Override
-    @SneakyThrows
-    public List<Project> findAllOrderByCreated(@NonNull final String userId) {
-        if (userId.isEmpty()) throw new UserIdEmptyException();
-        try (final SqlSession session = connectionService.getSqlSession()) {
-            return session.getMapper(IProjectRepository.class).findAllOrderByCreatedAsc(userId);
-        }
-    }
-
 }

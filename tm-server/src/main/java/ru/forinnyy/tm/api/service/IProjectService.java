@@ -34,10 +34,4 @@ public interface IProjectService {
 
     @NonNull List<Project> findAll(@NonNull String userId, Sort sort);
 
-    @NonNull List<Project> findAllOrderById(@NonNull String userId);
-
-    @NonNull List<Project> findAllOrderByName(@NonNull String userId);
-
-    @NonNull List<Project> findAllOrderByCreated(@NonNull String userId);
-
 }
